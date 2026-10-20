@@ -276,7 +276,7 @@ img{max-width:100%}
         <p class="hero-description">An aspiring Web Developer passionate about building useful, responsive, and user-friendly digital experiences. I enjoy turning ideas into practical projects while continuously improving my skills.</p>
         <div class="hero-buttons">
           <a class="btn btn-primary" href="#projects">Explore My Work ↗</a>
-          <a class="btn btn-secondary" href="./assets/Sai-Charan-Raj-Resume.pdf" download>Download Resume ↓</a>
+          <a class="btn btn-secondary" href="./assets/Sai-Charan-Raj-Resume.pdf" data-resume download>Download Resume ↓</a>
         </div>
         <div class="social-links">
           <a href="https://github.com/Cherryluu1" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile">GitHub ↗</a>
@@ -494,7 +494,7 @@ img{max-width:100%}
           <h3>Sai Charan Raj — Resume</h3>
           <p>B.Sc. Computer Science · Aspiring Web Developer · PDF</p>
         </div>
-        <a class="btn btn-primary" href="./assets/Sai-Charan-Raj-Resume.pdf" download="Sai-Charan-Raj-Resume.pdf">Download Resume ↓</a>
+        <a class="btn btn-primary" href="./assets/Sai-Charan-Raj-Resume.pdf" data-resume download="Sai-Charan-Raj-Resume.pdf">Download Resume ↓</a>
       </div>
       <div class="resume-links reveal">
         <a href="https://github.com/Cherryluu1" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
@@ -595,6 +595,31 @@ if ("IntersectionObserver" in window) {
 
 document.getElementById("currentYear").textContent = new Date().getFullYear();
 
+
+/* ====== Resume download (always saves as a real .pdf) ====== */
+document.querySelectorAll("[data-resume]").forEach(function (link) {
+  link.addEventListener("click", async function (event) {
+    event.preventDefault();
+    const url = link.getAttribute("href");
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("Resume not found");
+      const buffer = await res.arrayBuffer();
+      const head = new TextDecoder().decode(new Uint8Array(buffer.slice(0, 5)));
+      if (head !== "%PDF-") throw new Error("File is not a valid PDF");
+      const blob = new Blob([buffer], { type: "application/pdf" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Sai-Charan-Raj-Resume.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+    } catch (err) {
+      window.open(url, "_blank", "noopener");
+    }
+  });
+});
 </script>
 </body>
 </html>
